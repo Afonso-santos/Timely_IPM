@@ -7,7 +7,7 @@
             </div>
     
             <div class="menu-toggle-wrap">
-                <button class="menu-toggle" @click="() => { ToggleMenu(); if (isUserExpanded) toggleUserMenu(); }">
+                <button class="menu-toggle" @click="() => { toggleMenu(); if (isUserExpanded) toggleUserMenu(); }">
                     <span class="material-icons toggle-icon">
                         keyboard_double_arrow_right
                     </span>
@@ -75,7 +75,7 @@ const is_expanded = ref(false);
 const isUserExpanded = ref(false);
 const userMenuRef = ref<HTMLElement | null>(null);
 
-const ToggleMenu = () => {
+const toggleMenu = () => {
     is_expanded.value = !is_expanded.value;
 };
 
