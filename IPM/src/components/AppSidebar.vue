@@ -317,11 +317,13 @@ aside.is-expanded .user-info {
 
 .user-menu {
     position: absolute;
-    bottom: 4rem;
-    left: 7rem;
+    bottom: 4.5rem;
+    left: 1.5rem;
     background-color: white;
     border-radius: 1rem;
     padding: 1rem;
+    padding-left: 5rem;
+    padding-right: 5rem;
     box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
