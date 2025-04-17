@@ -1,1 +1,6 @@
 @import 'tailwindcss';
+@layer base {
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+}
