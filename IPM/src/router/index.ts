@@ -8,8 +8,24 @@ const router = createRouter({
             component: () => import('../views/AppHome.vue')
         },
         {
-            path: '/about',
+            path: '/tasks',
             component: () => import('../views/AppTasks.vue')
+        },
+        {
+            path: '/students',
+            component: () => import('../views/AppStudents.vue')
+        },
+        {
+            path: '/ucs',
+            component: () => import('../views/AppUCs.vue')
+        },
+        {
+            path: '/requests',
+            component: () => import('../views/AppRequests.vue')
+        },
+        {
+            path: '/statistics',
+            component: () => import('../views/AppStatistics.vue')
         }
     ]
 })

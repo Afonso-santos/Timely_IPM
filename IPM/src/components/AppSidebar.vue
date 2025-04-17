@@ -16,35 +16,35 @@
         </div>
 
         <div class="menu">
-            <router-link class="button" to="/">
-                <span class="material-icons">schedule</span>
+            <router-link class="button" to="/" exact-active-class="active">
+                <span class="material-symbols-outlined">schedule</span>
                 <span class="text">Horários</span>
             </router-link>
-            <router-link class="button" to="/about">
-                <span class="material-icons">pending_actions</span>
+            <router-link class="button" to="/tasks" exact-active-class="active">
+                <span class="material-symbols-outlined">pending_actions</span>
                 <span class="text">Tarefas</span>
             </router-link>
-            <router-link class="button" to="/">
-                <span class="material-icons">groups</span>
+            <router-link class="button" to="/students" exact-active-class="active">
+                <span class="material-symbols-outlined">groups</span>
                 <span class="text">Alunos</span>
             </router-link>
-            <router-link class="button" to="/">
-                <span class="material-icons">school</span>
+            <router-link class="button" to="/ucs" exact-active-class="active">
+                <span class="material-symbols-outlined">school</span>
                 <span class="text">UCs</span>
             </router-link>
-            <router-link class="button" to="/">
-                <span class="material-icons">chat</span>
+            <router-link class="button" to="/requests" exact-active-class="active">
+                <span class="material-symbols-outlined">chat</span>
                 <span class="text">Pedidos</span>
             </router-link>
-            <router-link class="button" to="/">
-                <span class="material-icons">equalizer</span>
+            <router-link class="button" to="/statistics" exact-active-class="active">
+                <span class="material-symbols-outlined">equalizer</span>
                 <span class="text">Estatísticas</span>
             </router-link>
         </div>
 
         <div class="user-section" ref="userMenuRef" :class="{ collapsed: !is_expanded }">
             <div class="user-menu" v-if="isUserExpanded">
-                <router-link to="/perfil" class="menu-option">Página de Perfil</router-link>
+                <router-link to="/perfil" class="menu-option" @click="() => isUserExpanded = false">Página de Perfil</router-link>
                 <div class="menu-option logout" @click="logout">Terminar Sessão</div>
             </div>
             <img class="user-avatar" src="../assets/avatar.png" alt="Avatar" />
@@ -53,12 +53,12 @@
                 <p class="user-role">Diretora de Curso</p>
             </div>
             <span
-                class="material-icons arrow-icon"
+                class="material-symbols-outlined arrow-icon"
                 :class="{ 'rotate-180': isUserExpanded }"
                 v-show="is_expanded"
                 @click="toggleUserMenu"
             >
-                expand_more
+                expand_all
             </span>
         </div>
 
@@ -85,6 +85,7 @@ const toggleUserMenu = () => {
 
 const logout = () => {
     // Perform logout logic here
+    isUserExpanded.value = false;
     console.log('Logging out...');
     router.push('/login');
 };
@@ -190,6 +191,12 @@ aside.is-expanded .logo {
     transition: transform 0.2s ease;
 }
 
+.menu-toggle .material-symbols-outlined {
+    font-size: 2rem;
+    color: var(--light);
+    transition: transform 0.2s ease;
+}
+
 .button .text {
     opacity: 0;
     transition: 0.2s ease-out;
@@ -215,6 +222,14 @@ aside.is-expanded .logo {
     transition: 0.2s ease;
 }
 
+.menu .button .material-symbols-outlined {
+    font-size: 2.2rem;
+    color: var(--light);
+    margin-right: 1rem;
+    margin-left: -2.1rem;
+    transition: 0.2s ease;
+}
+
 .menu .button .text {
     font-size: 1.2rem;
     font-weight: 400;
@@ -227,6 +242,11 @@ aside.is-expanded .logo {
 }
 
 aside.is-expanded .menu .button .material-icons {
+    margin-left: 0;
+    transition: 0.2s ease-out;
+}
+
+aside.is-expanded .menu .button .material-symbols-outlined {
     margin-left: 0;
     transition: 0.2s ease-out;
 }
@@ -328,6 +348,14 @@ aside.is-expanded .user-info {
 
 .menu-option.logout:hover {
     color: #7f1d1d;
+}
+
+.menu .button.active .text {
+  font-weight: bold;
+}
+
+.menu .button.active {
+  background-color: var(--primary-hover);
 }
 
 @media (max-width: 768px) {
