@@ -37,16 +37,18 @@ button {
     background: none;
 }
 
-.app{
+.app {
     display: flex;
+}
 
-    main {
-        flex: 1 1 0;
-        padding: 2rem;
+.app main {
+    flex: 1 1 0;
+    padding: 2rem;
+}
 
-        @media (max-width: 768px) { /* Adjust padding for smaller screens */
-            padding: 6rem;
-        }
+@media (max-width: 768px) { /* Adjust padding for smaller screens */
+    .app main {
+        padding: 6rem;
     }
 }
 </style>
