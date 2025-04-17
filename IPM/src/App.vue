@@ -27,6 +27,7 @@
 
 body {
     background: var(--light);
+    user-select: none;
 }
 
 button {
