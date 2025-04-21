@@ -124,7 +124,7 @@ aside {
 }
 
 aside.is-expanded {
-    width: var(--sidebar-with);
+    width: var(--sidebar-width);
     align-items: flex-start;
 }
 

@@ -5,7 +5,7 @@
 
 <template>
     <div class="app">
-        <AppSidebar />
+        <AppSidebar class="sidebar" />
         <router-view />
     </div>
 </template>
@@ -15,7 +15,7 @@
     --primary: #024B78;
     --primary-hover: #6894AC;
     --light: #F5F5F5;
-    --sidebar-with: 325px;
+    --sidebar-width: 325px;
 }
 
 * {
@@ -40,11 +40,23 @@ button {
 
 .app {
     display: flex;
+    margin-left: var(--sidebar-width);
 }
 
 .app main {
     flex: 1 1 0;
     padding: 2rem;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--primary);
+    z-index: 1000;
 }
 
 @media (max-width: 768px) { /* Adjust padding for smaller screens */
