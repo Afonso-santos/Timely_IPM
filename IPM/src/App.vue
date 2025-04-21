@@ -27,6 +27,7 @@
 
 body {
     background: var(--light);
+    overscroll-behavior: none;
     user-select: none;
 }
 
@@ -40,7 +41,7 @@ button {
 
 .app {
     display: flex;
-    margin-left: var(--sidebar-width);
+
 }
 
 .app main {
@@ -49,14 +50,11 @@ button {
 }
 
 .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: var(--sidebar-width);
+    width: var(--sidebar-with);
     height: 100vh;
     overflow: hidden;
-    background-color: var(--primary);
-    z-index: 1000;
+    position: sticky;
+    top: 0;
 }
 
 @media (max-width: 768px) { /* Adjust padding for smaller screens */
