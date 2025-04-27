@@ -44,7 +44,7 @@
 
         <div class="user-section" ref="userMenuRef" :class="{ collapsed: !is_expanded }">
             <div class="user-menu" v-if="isUserExpanded">
-                <router-link to="/perfil" class="menu-option" @click="() => isUserExpanded = false">Página de Perfil</router-link>
+                <router-link to="/profile" class="menu-option" @click="() => isUserExpanded = false">Página de Perfil</router-link>
                 <div class="menu-option logout" @click="logout">Terminar Sessão</div>
             </div>
             <img class="user-avatar" src="../assets/avatar.png" alt="Avatar" />
