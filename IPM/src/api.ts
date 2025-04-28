@@ -34,3 +34,19 @@ export async function list_ClassroomRequests(): Promise<types.ClassroomRequestDa
   })
   return dict
 }
+
+/**
+ * Fetch all students
+ */
+export async function listStudents(): Promise<types.Student[]> {
+  const response = await API.get<types.Student[]>('/students')
+  return response.data
+}
+
+/**
+ * Fetch all courses
+ */
+export async function listCourses(): Promise<types.Course[]> {
+  const response = await API.get<types.Course[]>('/courses')
+  return response.data
+}

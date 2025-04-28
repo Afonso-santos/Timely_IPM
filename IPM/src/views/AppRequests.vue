@@ -278,7 +278,6 @@
 </template>
   
 <script lang="ts">
-    import axios from 'axios';
     import { defineComponent, computed, ref, watch, onMounted } from 'vue';
     import { list_ShiftRequests, list_ClassroomRequests } from '../api'
     import type { ShiftRequestData, ClassroomRequestData } from '../types'
@@ -397,13 +396,7 @@
                     sortOrder.value = 'asc';
                 }
             }
-            
-            function isSortedAsc(key: SortKey) {
-                return sortKey.value === key && sortOrder.value === 'asc';
-            }
-            function isSortedDesc(key: SortKey) {
-                return sortKey.value === key && sortOrder.value === 'desc';
-            }
+
             function sortIcon(key: SortKey) {
                 if (sortKey.value === key) {
                     return sortOrder.value === 'asc'
