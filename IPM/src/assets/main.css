@@ -4,3 +4,8 @@
       font-family: 'Space Grotesk', sans-serif;
     }
 }
+
+@theme {
+  --color-primary: #024B78;
+  --color-secondary: #666;
+}

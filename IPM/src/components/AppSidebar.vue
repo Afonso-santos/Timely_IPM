@@ -1,112 +1,99 @@
 <template>
-    <aside :class="{ 'is-expanded': is_expanded }">
-
-        <div class="top-section">
-            <div class="logo" v-show="is_expanded">
-                <img src="../assets/logo-white.svg" alt="Logo" />
-            </div>
-    
-            <div class="menu-toggle-wrap">
-                <button class="menu-toggle" @click="() => { toggleMenu(); if (isUserExpanded) toggleUserMenu(); }">
-                    <span class="material-icons toggle-icon">
-                        keyboard_double_arrow_right
-                    </span>
-                </button>
-            </div>
+    <aside :class="{ 'is-expanded': sidebar.isExpanded }">
+      <div class="top-section">
+        <div class="logo" v-show="sidebar.isExpanded">
+          <img src="../assets/logo-white.svg" alt="Logo" />
         </div>
-
-        <div class="menu">
-            <router-link class="button" to="/" exact-active-class="active">
-                <span class="material-symbols-outlined">schedule</span>
-                <span class="text">Horários</span>
-            </router-link>
-            <router-link class="button" to="/tasks" exact-active-class="active">
-                <span class="material-symbols-outlined">pending_actions</span>
-                <span class="text">Tarefas</span>
-            </router-link>
-            <router-link class="button" to="/students" exact-active-class="active">
-                <span class="material-symbols-outlined">groups</span>
-                <span class="text">Alunos</span>
-            </router-link>
-            <router-link class="button" to="/ucs" exact-active-class="active">
-                <span class="material-symbols-outlined">school</span>
-                <span class="text">UCs</span>
-            </router-link>
-            <router-link class="button" to="/requests" exact-active-class="active">
-                <span class="material-symbols-outlined">chat</span>
-                <span class="text">Pedidos</span>
-            </router-link>
-            <router-link class="button" to="/statistics" exact-active-class="active">
-                <span class="material-symbols-outlined">equalizer</span>
-                <span class="text">Estatísticas</span>
-            </router-link>
-        </div>
-
-        <div class="user-section" ref="userMenuRef" :class="{ collapsed: !is_expanded }">
-            <div class="user-menu" v-if="isUserExpanded">
-                <router-link to="/profile" class="menu-option" @click="() => isUserExpanded = false">Página de Perfil</router-link>
-                <div class="menu-option logout" @click="logout">Terminar Sessão</div>
-            </div>
-            <img class="user-avatar" src="../assets/avatar.png" alt="Avatar" />
-            <div class="user-info">
-                <p class="user-name">Diana Cunha</p>
-                <p class="user-role">Diretora de Curso</p>
-            </div>
-            <span
-                class="material-symbols-outlined arrow-icon"
-                :class="{ 'rotate-180': isUserExpanded }"
-                v-show="is_expanded"
-                @click="toggleUserMenu"
-            >
-                expand_all
+  
+        <div class="menu-toggle-wrap">
+          <button class="menu-toggle" @click="() => { sidebar.toggleSidebar(); if (sidebar.isUserExpanded) sidebar.toggleUserMenu(); }">
+            <span class="material-icons toggle-icon">
+              keyboard_double_arrow_right
             </span>
+          </button>
         </div>
-
+      </div>
+  
+      <div class="menu">
+        <router-link class="button" to="/" exact-active-class="active">
+          <span class="material-symbols-outlined">schedule</span>
+          <span class="text">Horários</span>
+        </router-link>
+        <router-link class="button" to="/tasks" exact-active-class="active">
+          <span class="material-symbols-outlined">pending_actions</span>
+          <span class="text">Tarefas</span>
+        </router-link>
+        <router-link class="button" to="/students" exact-active-class="active">
+          <span class="material-symbols-outlined">groups</span>
+          <span class="text">Alunos</span>
+        </router-link>
+        <router-link class="button" to="/ucs" exact-active-class="active">
+          <span class="material-symbols-outlined">school</span>
+          <span class="text">UCs</span>
+        </router-link>
+        <router-link class="button" to="/requests" exact-active-class="active">
+          <span class="material-symbols-outlined">chat</span>
+          <span class="text">Pedidos</span>
+        </router-link>
+        <router-link class="button" to="/statistics" exact-active-class="active">
+          <span class="material-symbols-outlined">equalizer</span>
+          <span class="text">Estatísticas</span>
+        </router-link>
+      </div>
+  
+      <div class="user-section" ref="userMenuRef" :class="{ collapsed: !sidebar.isExpanded }">
+        <div class="user-menu" v-if="sidebar.isUserExpanded">
+          <router-link to="/profile" class="menu-option" @click="sidebar.closeUserMenu">Página de Perfil</router-link>
+          <div class="menu-option logout" @click="logout">Terminar Sessão</div>
+        </div>
+        <img class="user-avatar" src="../assets/avatar.png" alt="Avatar" />
+        <div class="user-info">
+          <p class="user-name">Diana Cunha</p>
+          <p class="user-role">Diretora de Curso</p>
+        </div>
+        <span
+          class="material-symbols-outlined arrow-icon"
+          :class="{ 'rotate-180': sidebar.isUserExpanded }"
+          v-show="sidebar.isExpanded"
+          @click="sidebar.toggleUserMenu"
+        >
+          expand_all
+        </span>
+      </div>
     </aside>
-</template>
+  </template>
   
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useSidebarStore } from '@/stores/sidebar';
 
 const router = useRouter();
-
-const is_expanded = ref(false);
-const isUserExpanded = ref(false);
 const userMenuRef = ref<HTMLElement | null>(null);
 
-const toggleMenu = () => {
-    is_expanded.value = !is_expanded.value;
-};
-
-const toggleUserMenu = () => {
-    isUserExpanded.value = !isUserExpanded.value;
-};
+const sidebar = useSidebarStore();
 
 const logout = () => {
-    // Perform logout logic here
-    isUserExpanded.value = false;
-    console.log('Logging out...');
-    router.push('/login');
+  sidebar.closeUserMenu();
+  console.log('Logging out...');
+  router.push('/login');
 };
 
 const handleClickOutside = (event: MouseEvent) => {
-        if (
-            userMenuRef.value && 
-            !userMenuRef.value.contains(event.target as Node)
-        ) {
-            isUserExpanded.value = false;
-        }
-    };
+  if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
+    sidebar.closeUserMenu();
+  }
+};
 
 onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
+  document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>
+
   
 <style scoped>
 aside {

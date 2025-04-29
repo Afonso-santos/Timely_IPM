@@ -1,3 +1,5 @@
+import { color } from 'chart.js/helpers';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
