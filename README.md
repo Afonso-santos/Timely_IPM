@@ -14,6 +14,12 @@ npm install
 npm run dev
 ```
 
+### Start the `json-server`
+
+```sh
+npx json-server trabalhodb.json
+```
+
 ### Type-Check, Compile and Minify for Production
 
 ```sh

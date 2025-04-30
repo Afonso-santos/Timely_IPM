@@ -60,7 +60,7 @@
                 border-color: #003b60;
                 border-width: 3px;
               "
-              src="../assets/avatar.png"
+              src="../assets/avatar.svg"
               alt="Avatar"
             />
           </div>
@@ -228,7 +228,7 @@
                     border-color: #003b60;
                     border-width: 3px;
                   "
-                  src="../assets/avatar.png"
+                  src="../assets/avatar.svg"
                   alt="Avatar"
                 />
               </div>

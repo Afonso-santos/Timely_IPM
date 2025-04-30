@@ -2,12 +2,24 @@ import axios from 'axios'
 import * as types from './types'
 
 const API = axios.create({
-  baseURL: 'http://localhost:3000',
-  responseType: 'json',
-  headers: {
-    'Content-Type': 'application/json'
-  }
+    baseURL: 'http://localhost:3000',
+    responseType: 'json',
+    headers: {
+        'Content-Type': 'application/json'
+    }
 })
+
+/** Get the schedules' visibility */
+export async function getSchedulesVisibility(): Promise<boolean> {
+    const response = await API.get('/schedule-visibility');
+    return response.data.visibility;
+}
+  
+/** Update the schedules' visibility */
+export async function updateSchedulesVisibility(visibility: boolean): Promise<void> {
+    console.log("Updating schedules visibility to:", visibility);
+    await API.put('/schedule-visibility', { "visibility": visibility });
+}
 
 /**
  * Fetch all shift requests and return as a dictionary by ID

@@ -15,6 +15,10 @@
     --primary: #024B78;
     --primary-hover: #6894AC;
     --light: #F5F5F5;
+    --red: #823142;
+    --light-red:#CDADB3;
+    --green: #166D20;
+    --light-green: #166D2066;
     --sidebar-width: 325px;
 }
 

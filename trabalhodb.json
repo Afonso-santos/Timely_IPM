@@ -1,4 +1,7 @@
 {
+  "schedule-visibility": {
+    "visibility": false
+  },
   "directors": [
     { "id": 1, "name": "José", "email": "jose@di.uminho.pt", "password": "123" }
   ],

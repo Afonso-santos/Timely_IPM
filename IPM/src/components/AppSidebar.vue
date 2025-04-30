@@ -46,7 +46,7 @@
           <router-link to="/profile" class="menu-option" @click="sidebar.closeUserMenu">Página de Perfil</router-link>
           <div class="menu-option logout" @click="logout">Terminar Sessão</div>
         </div>
-        <img class="user-avatar" src="../assets/avatar.png" alt="Avatar" />
+        <img class="user-avatar" src="../assets/avatar.svg" alt="Avatar" />
         <div class="user-info">
           <p class="user-name">Diana Cunha</p>
           <p class="user-role">Diretora de Curso</p>
