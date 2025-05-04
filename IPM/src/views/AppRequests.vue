@@ -279,7 +279,7 @@
             <template #title>Pedido de Troca de Horário</template>
         </ModalRequestStudent>
         <ModalRequestTeacher v-model="isModalOpenTeacher" :request="selectedRequestTeacher">
-            <template #title>Pedido de Troca de Horário</template>
+            <template #title>Pedido de Troca de Sala</template>
         </ModalRequestTeacher>
     </main>
 </template>
@@ -291,6 +291,7 @@
     import ModalRequestStudent from '../components/modals/ModalRequestStudent.vue';
     import ModalRequestTeacher from '../components/modals/ModalRequestTeacher.vue';
     import { parseISO } from 'date-fns';
+    import { toast } from 'vue-sonner'
     import {
         CircleCheckBig,
         CircleX,
@@ -550,6 +551,13 @@
                         if (idx >= 0) teacherRecords.value.splice(idx, 1);
                     }
                 }
+                toast.success('Pedido eliminado com sucesso!', {
+                    duration: 3000,
+                    position: 'top-center',
+                    style: {
+                        backgroundColor: '#ffffff'
+                    },
+                })
             }
 
             // 5) Pagination

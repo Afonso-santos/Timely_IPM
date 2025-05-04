@@ -53,9 +53,42 @@
                                     <div class="text-right justify-center text-stone-500">Estatuto:</div>
                                     <div class="text-right justify-start text-black/50 font-bold leading-7">Estudante</div>
                                 </div>
+                                <!-- UC -->
                                 <div class="flex justify-between items-center">
                                     <div class="text-right justify-center text-stone-500">Unidade Curricular:</div>
-                                    <div class="text-right justify-start text-black/50 font-bold leading-7">{{ course?.name }}</div>
+                                    <select
+                                    v-model="selectedCourseId"
+                                    class="w-56 h-[30px] rounded-[25px] !px-4 bg-gray-200 text-sm text-gray-600 appearance-none focus:outline-none focus:ring-1 focus:ring-gray-400"
+                                    >
+                                        <option value="" disabled>Selecione a UC</option>
+                                        <option
+                                            v-for="uc in enrolledCourses"
+                                            :key="uc.id"
+                                            :value="uc.id"
+                                        >
+                                            {{ uc.name }}
+                                        </option>
+                                    </select>
+                                    <ChevronsUpDown :size="15" class=" absolute right-11 z-50 text-gray-600 pointer-events-none" />
+                                </div>
+
+                                <!-- Tipo de Turno -->
+                                <div class="flex justify-between items-center mt-2">
+                                    <div class="text-right justify-center text-stone-500">Tipo de Turno:</div>
+                                    <select
+                                    v-model="selectedShiftType"
+                                    class="w-56 h-[30px] rounded-[25px] !px-4 bg-gray-200 text-sm text-gray-600 appearance-none focus:outline-none focus:ring-1 focus:ring-gray-400"
+                                    >
+                                        <option value="" disabled>Selecione o tipo de turno</option>
+                                        <option
+                                            v-for="type in availableShiftTypes"
+                                            :key="type"
+                                            :value="type"
+                                        >
+                                            {{ type }}
+                                        </option>
+                                    </select>
+                                    <ChevronsUpDown :size="15" class=" absolute right-11 z-50 text-gray-600 pointer-events-none" />
                                 </div>
                             </div>
 
@@ -67,7 +100,12 @@
                                         <div class="text-right justify-center text-stone-500">Turno atual:</div>
                                         <div class="w-12 h-6 text-right justify-center text-stone-500 font-bold">{{ currentShiftData?.name }}</div>
                                     </div>
-                                    <div class="w-30 h-5 justify-center text-sky-900 text-sm">{{ currentShiftData?.day }}, {{ currentShiftData?.from }}h</div>
+                                    <div
+                                        v-if="currentShiftData?.day && currentShiftData?.from !== undefined"
+                                        class="w-30 h-5 justify-center text-sky-900 text-sm"
+                                    >
+                                        {{ currentShiftData.day }}, {{ currentShiftData.from }}h
+                                    </div>
                                 </div>
                                 <ProgressBar :current="currentEnrolledStudents" :total="currentCapacity"/>
                             </div>
@@ -78,7 +116,12 @@
                                         <div class="text-right justify-center text-stone-500">Novo turno:</div>
                                         <div class="w-12 h-6 text-right justify-center text-stone-500 font-bold">{{ newShiftData?.name }}</div>
                                     </div>
-                                    <div class="w-30 h-5 justify-center text-sky-900 text-sm">{{ newShiftData?.day }}, {{ newShiftData?.from }}h</div>
+                                    <div
+                                        v-if="newShiftData?.day && newShiftData?.from !== undefined"
+                                        class="w-30 h-5 justify-center text-sky-900 text-sm"
+                                    >
+                                        {{ newShiftData.day }}, {{ newShiftData.from }}h
+                                    </div>
                                 </div>
                                 <ProgressBar :current="newEnrolledStudents" :total="newCapacity"/>
                             </div>
@@ -122,7 +165,7 @@
                                             : 'text-[#7C2D3A] !border-2 border-[#7C2D3A] opacity-50 !cursor-not-allowed'
                                     ]"
                                 >
-                                    Recusar
+                                    Cancelar
                                 </button>
                                 <button
                                     @click="approveRequest"
@@ -134,7 +177,7 @@
                                             : 'text-[#136D1E] !border-2 !border-[#136D1E] opacity-50 !cursor-not-allowed'
                                     ]"
                                 >
-                                    Aprovar
+                                    Guardar
                                 </button>
                             </div>
                         </DialogPanel>
@@ -147,14 +190,13 @@
 
 <script setup lang="ts">
     import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
-    import { ref, onMounted, watch } from 'vue'
+    import { ref, watch } from 'vue'
     import { X, ChevronsUpDown } from 'lucide-vue-next'
     import WeeklyCalendar from '@/components/schedules/WeeklyCalendar.vue'
     import ProgressBar from '@/components/schedules/ProgressBar.vue'
-    import type { StudentRecord } from '@/views/AppRequests.vue'
+    import type { StudentRecord } from '@/views/AppStudents.vue'
     import { toast } from 'vue-sonner'
     import {
-        getShiftRequests,
         getCourses,
         getAllocations,
         getShifts,
@@ -189,6 +231,10 @@
         timeSlot: number
     }
 
+    const selectedCourseId = ref<number | ''>('')
+    const selectedShiftType = ref<string | ''>('')
+    const enrolledCourses = ref<Course[]>([])
+    const availableShiftTypes = ref<string[]>([])
     const student = ref<Student | null>(null)
     const course = ref<Course | null>(null)
     const selectedShift = ref('')
@@ -203,6 +249,8 @@
     const newCapacity = ref(0)
     const currentShiftData = ref<Shift>()
     const newShiftData = ref<Shift>()
+    const allShifts = ref<Shift[]>([])
+
 
     const dayMap: Record<string, number> = {
         'Monday': 0,
@@ -221,7 +269,7 @@
         }
     }
 
-    watch(selectedShift, (id) => {
+    watch(selectedShift, async (id) => {
         const shift = shifts.value.find(s => s.id == Number(id))
         
         if (!shift) {
@@ -232,6 +280,9 @@
         newEnrolledStudents.value = shift.totalStudentsRegistered
         newShiftData.value = shift
         newShift.value = shiftToCalendarShift(shift)
+        const classrooms = await getClassrooms()
+        const room = classrooms.find(c => c.id == shift.classroomId)
+        newCapacity.value = room?.capacity || 0
 
         const hasConflict = shifts_calendar.value.some(s =>
             s.day === dayMap[shift.day] &&
@@ -250,6 +301,16 @@
         async (newVal) => {
             if (!newVal) {
                 selectedShift.value = ''
+                selectedCourseId.value = ''
+                selectedShiftType.value = ''
+                currentShiftData.value = undefined
+                currentShift.value = undefined
+                currentEnrolledStudents.value = 0
+                currentCapacity.value = 0
+                newShift.value = undefined
+                newShiftData.value = undefined
+                newEnrolledStudents.value = 0
+                newCapacity.value = 0
             }
         }
     )
@@ -265,72 +326,122 @@
     watch(
         () => props.modelValue,
         async (newVal) => {
-            if (newVal) {
-                const students = await listStudents()
-                const mappedStudents = students.map(s => ({
-                    id: s.id,
-                    name: s.name,
-                    email: s.email,
-                    password: s.password,
-                    enrolled: s.enrolled,
-                    horario: s.horario,
-                    ano: s.ano,
-                    numMat: s.numMat,
-                    data: new Date(s.data)
-                }))
-
-                student.value = mappedStudents.find(st => st.name === props.request?.nome) || null
-
-                const courses = await getCourses()
-                course.value = courses.find(c => c.abbreviation === props.request?.uc) || null
-
-                const all_shifts = await getShifts()
-
-                if (course.value?.id !== undefined) {
-                    shifts.value = all_shifts.filter(s => s.courseId == course.value?.id)
-                } else {
-                    console.warn('course.value.id está undefined')
-                }
-
-                const allocations = await getAllocations()
-                const allocationsStudent = allocations.filter(a => a.studentId == student.value?.id)
-                const shifts_student = all_shifts.filter(s => allocationsStudent.some(a => a.shiftId == s.id))
-                const calendarShifts = shifts_student.map(shiftToCalendarShift)
-                shifts_calendar.value = calendarShifts
-
-                const shiftRequest = await getShiftRequests()
-                const currentShiftId = shiftRequest.find(s => s.studentId == student.value?.id)?.shiftId
-                currentShiftData.value = all_shifts.find(s => s.id == currentShiftId)
-                currentEnrolledStudents.value = currentShiftData.value?.totalStudentsRegistered || 0
-                const classrooms = await getClassrooms()
-                const currentClassroom = classrooms.find(c => c.id == currentShiftData.value?.classroomId)
-                currentCapacity.value = currentClassroom?.capacity || 0
-                if (currentShiftData.value) {
-                    currentShift.value = shiftToCalendarShift(currentShiftData.value)
-                } else {
-                    console.warn('currentShiftData está undefined')
-                }
-
-                shifts.value = shifts.value.filter(s => s.id != currentShiftId)
-
-                const newShiftId = shiftRequest.find(s => s.studentId == student.value?.id)?.alternativeShiftId
-                newShiftData.value = all_shifts.find(s => s.id == newShiftId)
-                newEnrolledStudents.value = newShiftData.value?.totalStudentsRegistered || 0
-                const newClassroom = classrooms.find(c => c.id == newShiftData.value?.classroomId)
-                newCapacity.value = newClassroom?.capacity || 0
-                if (newShiftData.value) {
-                    newShift.value = shiftToCalendarShift(newShiftData.value)
-                } else {
-                    console.warn('newShiftData está undefined')
-                }
-                
+            if (!newVal) {
+            selectedCourseId.value = ''
+            selectedShiftType.value = ''
+            selectedShift.value = ''
+            return
             }
+
+            canSubmit.value = true
+
+            const students = await listStudents()
+            const mappedStudents = students.map(s => ({
+            id: s.id,
+            name: s.name,
+            email: s.email,
+            password: s.password,
+            enrolled: s.enrolled,
+            horario: s.horario,
+            ano: s.ano,
+            numMat: s.numMat,
+            data: new Date(s.data)
+            }))
+            student.value = mappedStudents.find(st => st.name === props.request?.name) || null
+
+            const courses = await getCourses()
+            for (const course of courses) {
+                course.id = Number(course.id)
+            }
+            const studentEnrolledIds = student.value?.enrolled || []
+            console.log('Cursos:', courses)
+            console.log('IDs de cursos em que o aluno está inscrito:', studentEnrolledIds)
+            console.log('ID do aluno:', student.value?.id)
+            enrolledCourses.value = courses.filter(c => studentEnrolledIds.includes(c.id))
+            console.log('Unidades curriculares:', enrolledCourses.value)
+
+            const allocations = await getAllocations()
+            const shiftsRaw = await getShifts()
+            allShifts.value = shiftsRaw
+            console.log('Turnos:', allShifts.value)
+
+            const allocationsStudent = allocations.filter(a => a.studentId == student.value?.id)
+            const shifts_student = shiftsRaw.filter(s => allocationsStudent.some(a => a.shiftId == s.id))
+            shifts_calendar.value = shifts_student.map(shiftToCalendarShift)
+            console.log('Turnos do aluno:', shifts_student)
         }
     )
 
+    watch(selectedCourseId, (courseId) => {
+        if (!courseId) {
+            availableShiftTypes.value = []
+            selectedShiftType.value = ''
+            return
+        }
+
+        const shiftsInCourse = allShifts.value.filter(s => s.courseId == courseId)
+        const shiftTypes = Array.from(new Set(shiftsInCourse.map(s => s.type)))
+        availableShiftTypes.value = shiftTypes
+        selectedShiftType.value = ''
+        currentShiftData.value = undefined
+        newShiftData.value = undefined
+        currentCapacity.value = 0
+        newCapacity.value = 0
+        currentEnrolledStudents.value = 0
+        newEnrolledStudents.value = 0
+    })
+
+    watch(selectedShiftType, (shiftType) => {
+        if (!selectedCourseId.value || !shiftType) {
+            currentShift.value = undefined
+            newShift.value = undefined
+            shifts.value = []
+            return
+        }
+
+        const studentId = student.value?.id
+        const relevantShifts = allShifts.value.filter(s =>
+            s.courseId == selectedCourseId.value && s.type == shiftType
+        )
+        shifts.value = relevantShifts
+
+        // Obter turno atual
+        getAllocations().then(allocations => {
+            const alloc = allocations.find(a =>
+            a.studentId == studentId &&
+            relevantShifts.some(s => s.id == a.shiftId)
+            )
+            if (alloc) {
+            currentShiftData.value = relevantShifts.find(s => s.id == alloc.shiftId)
+            console.log('Turno atual:', currentShiftData.value)
+            currentEnrolledStudents.value = currentShiftData.value?.totalStudentsRegistered || 0
+            console.log('Alunos inscritos:', currentEnrolledStudents.value)
+
+            getClassrooms().then(classrooms => {
+                const room = classrooms.find(c => c.id == currentShiftData.value?.classroomId)
+                currentCapacity.value = room?.capacity || 0
+            })
+
+            if (currentShiftData.value) {
+                currentShift.value = shiftToCalendarShift(currentShiftData.value)
+                console.log('Turno atual:', currentShift.value)
+                shifts.value = relevantShifts.filter(s => s.id != currentShiftData.value?.id)
+                console.log('Turnos restantes:', shifts.value)
+            }
+            } else {
+            currentShiftData.value = undefined
+            currentCapacity.value = 0
+            currentEnrolledStudents.value = 0
+            currentShift.value = undefined
+            }
+        })
+    })
+
+
+
     function approveRequest() {
         if (canSubmit.value) emit('update:modelValue', false)
-        toast.success('Pedido aprovado com sucesso!', {
+        toast.success('Turno guardado com sucesso!', {
             duration: 3000,
             position: 'top-center',
             style: {
@@ -341,15 +452,7 @@
 
     function refuseRequest() {
         if (canSubmit.value) emit('update:modelValue', false)
-        toast.success('Pedido recusado com sucesso!', {
-            duration: 3000,
-            position: 'top-center',
-            style: {
-                backgroundColor: '#ffffff'
-            },
-        })
     }
-
 </script>
 
 <style scoped>

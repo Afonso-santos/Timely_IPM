@@ -151,6 +151,7 @@
     import { X, ChevronsUpDown } from 'lucide-vue-next'
     import ProgressBar from '@/components/schedules/ProgressBar.vue'
     import type { TeacherRecord } from '@/views/AppRequests.vue'
+    import { toast } from 'vue-sonner'
     import {
         getShiftRequests,
         getCourses,
@@ -216,10 +217,24 @@
 
     function approveRequest() {
         if (canSubmit.value) emit('update:modelValue', false)
+        toast.success('Pedido aprovado com sucesso!', {
+            duration: 3000,
+            position: 'top-center',
+            style: {
+                backgroundColor: '#ffffff'
+            },
+        })
     }
 
     function refuseRequest() {
         if (canSubmit.value) emit('update:modelValue', false)
+        toast.success('Pedido recusado com sucesso!', {
+            duration: 3000,
+            position: 'top-center',
+            style: {
+                backgroundColor: '#ffffff'
+            },
+        })
     }
 
 </script>

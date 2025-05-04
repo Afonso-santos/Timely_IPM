@@ -178,14 +178,19 @@
                 </div>
             </div>
         </div>
+
+        <ModalStudent v-model="isModalOpen" :request="selectedStudent">
+            <template #title>Pedido de Troca de Horário</template>
+        </ModalStudent>
     </main>
 </template>
   
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted } from 'vue';
 import { listStudents, listCourses } from '../api';
+import ModalStudent from '../components/modals/ModalStudent.vue';
 
-interface StudentRecord {
+export interface StudentRecord {
     id: number;
     name: string;
     email: string;
@@ -229,7 +234,8 @@ export default defineComponent({
         ChevronsRight,
         ChevronsUpDown,
         ChevronUp,
-        ChevronDown
+        ChevronDown,
+        ModalStudent
     },
     setup() {
         const studentRecords = ref<StudentRecord[]>([]);
@@ -240,6 +246,8 @@ export default defineComponent({
         const sortOrder      = ref<'asc'|'desc'>('asc');
         const currentPage    = ref(1);
         const pageSize       = 10;
+        const selectedStudent = ref<StudentRecord | null>(null);
+        const isModalOpen    = ref(false);
 
         const ucOptions = computed(() =>
             courses.value.map(c => c.abbreviation)
@@ -248,6 +256,9 @@ export default defineComponent({
         onMounted(async () => {
             const apiStudents = await listStudents();
             courses.value = await listCourses();
+            for (const course of courses.value) {
+                course.id = Number(course.id)
+            }
 
             studentRecords.value = apiStudents.map(s => ({
                 id: s.id,
@@ -338,10 +349,14 @@ export default defineComponent({
         }
 
         function editItem(item: StudentRecord) {
-            console.log('Editar aluno:', item);
+            selectedStudent.value = item;
+            isModalOpen.value = true;
         }
 
         return {
+            selectedStudent,
+            isModalOpen,
+            ModalStudent,
             selectedUc,
             ucOptions,
             searchQuery,

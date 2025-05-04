@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import './index.css'
     import AppSidebar from './components/AppSidebar.vue';
+    import { Toaster } from 'vue-sonner'
     import { useRoute } from 'vue-router'
 
     const route = useRoute();
@@ -9,6 +10,7 @@
 <template>
     <div class="app">
         <AppSidebar v-if="route.path != '/login'" class="sidebar" />
+        <Toaster richColors />
         <router-view :key="$route.fullPath" />
     </div>
 </template>
