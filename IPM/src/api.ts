@@ -9,6 +9,8 @@ const API = axios.create({
     }
 })
 
+const API_BASE = 'http://localhost:3000';
+
 /** Get the schedules' visibility */
 export async function getSchedulesVisibility(): Promise<boolean> {
     const response = await API.get('/schedule-visibility');
@@ -61,6 +63,46 @@ export async function listStudents(): Promise<types.Student[]> {
 export async function listCourses(): Promise<types.Course[]> {
   const response = await API.get<types.Course[]>('/courses')
   return response.data
+}
+
+/**
+ * Fetch all shifts
+ */
+export const getShifts = async (): Promise<types.Shift[]> => {
+  const response = await API.get<types.Shift[]>('/shifts');
+  return response.data;
+};
+
+/**
+ * Fetch all courses
+ */
+export const getCourses = async (): Promise<types.Course[]> => {
+  const response = await API.get<types.Course[]>('/courses');
+  return response.data;
+};
+
+/**
+ * Fetch all allocations
+ */
+export const getAllocations = async (): Promise<types.Allocation[]> => {
+  const response = await API.get<types.Allocation[]>('/allocations');
+  return response.data;
+};
+
+/**
+ * Fetch all shift requests
+ */
+export const getShiftRequests = async (): Promise<types.ShiftRequestData[]> => {
+  const response = await API.get<types.ShiftRequestData[]>('/shiftRequests');
+  return response.data;
+};
+
+/**
+ * Fetch all classrooms
+ */
+export const getClassrooms = async (): Promise<types.Classroom[]> => {
+  const response = await API.get<types.Classroom[]>('/classrooms');
+  return response.data;
 }
 
 /**
@@ -189,3 +231,23 @@ export async function getPercentageOfStudentsWithConflicts(): Promise<number> {
 
   return Math.round((studentsWithConflicts / totalStudents) * 100);
 }
+
+// Atualizar resposta de pedido de troca (PUT)
+export const updateShiftRequest = async (id: number, updatedRequest: Partial<types.ShiftRequestData>) => {
+  await axios.patch(`${API_BASE}/shiftRequests/${id}`, updatedRequest);
+};
+
+// Atualizar alocação de aluno a turno
+export const updateAllocation = async (id: number, updatedAllocation: Partial<types.Allocation>) => {
+  await axios.patch(`${API_BASE}/allocations/${id}`, updatedAllocation);
+};
+
+// Criar nova alocação (caso necessário)
+export const createAllocation = async (allocation: types.Allocation) => {
+  await axios.post(`${API_BASE}/allocations`, allocation);
+};
+
+// Eliminar alocação (caso o aluno saia de um turno)
+export const deleteAllocation = async (id: number) => {
+  await axios.delete(`${API_BASE}/allocations/${id}`);
+};

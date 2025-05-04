@@ -274,6 +274,13 @@
                 </div>
             </div>
         </div>
+
+        <ModalRequestStudent v-model="isModalOpenStudent" :request="selectedRequestStudent">
+            <template #title>Pedido de Troca de Horário</template>
+        </ModalRequestStudent>
+        <ModalRequestTeacher v-model="isModalOpenTeacher" :request="selectedRequestTeacher">
+            <template #title>Pedido de Troca de Horário</template>
+        </ModalRequestTeacher>
     </main>
 </template>
   
@@ -281,6 +288,8 @@
     import { defineComponent, computed, ref, watch, onMounted } from 'vue';
     import { list_ShiftRequests, list_ClassroomRequests } from '../api'
     import type { ShiftRequestData, ClassroomRequestData } from '../types'
+    import ModalRequestStudent from '../components/modals/ModalRequestStudent.vue';
+    import ModalRequestTeacher from '../components/modals/ModalRequestTeacher.vue';
     import { parseISO } from 'date-fns';
     import {
         CircleCheckBig,
@@ -316,6 +325,10 @@
     export interface TeacherRecord extends BaseRecord {
         tipo: 'Docente';
         sala: string;
+        shift: string;
+        shiftSize: number;
+        classroomId: number;
+        alternativeclassroomId: number;
     }
 
     type AnyRecord = StudentRecord | TeacherRecord;
@@ -325,6 +338,8 @@
     export default defineComponent({
         name: 'RequestTable',
         components: {
+            ModalRequestStudent,
+            ModalRequestTeacher,
             CircleCheckBig,
             CircleX,
             Archive,
@@ -343,6 +358,12 @@
         setup() {
             const studentRecords = ref<StudentRecord[]>([]);
             const teacherRecords = ref<TeacherRecord[]>([]);
+
+            const isModalOpenStudent = ref(false);
+            const isModalOpenTeacher = ref(false);
+            const selectedRequestStudent = ref<StudentRecord | null>(null);
+            const selectedRequestTeacher = ref<TeacherRecord | null>(null);
+
 
             onMounted(async () => {
                 const [shiftDict, classroomDict] = await Promise.all([
@@ -371,7 +392,11 @@
                     data: parseISO(c.date),
                     estado: c.response,
                     mudanca: c.alternativeclassroom,
-                    arquivado: c.archive
+                    arquivado: c.archive,
+                    shift: c.shift,
+                    shiftSize: c.shiftsize || 0,
+                    classroomId: c.classroomId,
+                    alternativeclassroomId: c.alternativeclassroomId
                 }))
             })
 
@@ -492,8 +517,15 @@
             }
 
             function editItem(item: AnyRecord) {
-                // Logica para editar o item (abrir modal)
-                console.log('Editar:', item);
+                if ('turno' in item) {
+                    // StudentRecord
+                    selectedRequestStudent.value = item;
+                    isModalOpenStudent.value = true;
+                } else {
+                    // TeacherRecord
+                    selectedRequestTeacher.value = item;
+                    isModalOpenTeacher.value = true;
+                }
             }
 
             function archiveItem(item: AnyRecord) {
@@ -571,6 +603,10 @@
                 archiveSelected,
                 deleteArchivedSelected,
                 editItem,
+                isModalOpenStudent,
+                isModalOpenTeacher,
+                selectedRequestStudent,
+                selectedRequestTeacher,
                 archiveItem,
                 deleteItem,
                 currentPage,

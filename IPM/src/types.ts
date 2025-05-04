@@ -4,6 +4,8 @@ type ScheduleStatus = 'Completo' | 'Incompleto';
 export interface ClassroomRequestData {
     id: number;
     uc: string;
+    shift: string;
+    shiftsize: number;
     classroomId: number;
     classroom: string;
     teacherId: number;
@@ -58,3 +60,40 @@ export interface Course {
     semester: number;
     degreeId: number;
 }
+
+export interface Course {
+    id: number;
+    name: string;
+    abbreviation: string;
+    year: number;
+    semester: number;
+    degreeId: number;
+}
+  
+export interface Shift {
+    id: number;
+    courseId: number;
+    classroomId: number;
+    day: string;
+    from: number;
+    to: number;
+    type: string;
+    name: string;
+    teacherId: number;
+    totalStudentsRegistered: number;
+}
+
+export interface Allocation {
+    id: number;
+    shiftId: number;
+    studentId: number;
+}
+
+export interface Classroom {
+    id: number;
+    name: string;
+    capacity: number;
+    buildingId: number;
+    abbreviation: string;
+}
+  
