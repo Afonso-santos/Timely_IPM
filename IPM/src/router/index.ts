@@ -25,6 +25,11 @@ const router = createRouter({
             meta: { requiresAuth: true }
         },
         {
+            path: '/ucs/:abbreviation',
+            component: () => import('../views/AppInfoUC.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
             path: '/requests',
             component: () => import('../views/AppRequests.vue'),
             meta: { requiresAuth: true }

@@ -291,6 +291,30 @@ export const deleteAllocation = async (id: number) => {
   await axios.delete(`${API_BASE}/allocations/${id}`);
 };
 
+// Fetch courses by year and semester
+export const getCoursesByYearAndSemester = async (year: number, semester: number): Promise<types.Course[]> => {
+  const response = await API.get<types.Course[]>(`/courses?year=${year}&semester=${semester}`);
+  return response.data;
+}
+
+// Fetch a single course by its abbreviation
+export const getCourseByAbbreviation = async (abbreviation: string): Promise<types.Course> => {
+  const response = await API.get<types.Course>(`/courses/?abbreviation=${abbreviation}`)
+  return response.data
+}
+
+// Fetch all courses by student ID
+export const getCoursesByStudentId = async (studentId: number): Promise<types.Course[]> => {
+  const studentResponse = await API.get<types.Student>(`/students/${studentId}`);
+  const enrolledCourseIds = studentResponse.data.enrolled;
+
+  const courseResponses = await Promise.all(
+    enrolledCourseIds.map((courseId) => API.get<types.Course>(`/courses/${courseId}`))
+  );
+
+  return courseResponses.map(res => res.data);
+};
+
 /**
  * Fetch all shifts for a specific student and return them in calendar format
  */

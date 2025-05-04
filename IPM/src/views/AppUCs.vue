@@ -5,40 +5,47 @@
         
             <span class="title">Unidades Curriculares</span>
 
-            <span class style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 10px;">
+            <!-- Director View -->
+            <span v-if="session.type == 'director'" class style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 10px;">
                 
                 <span class="card">
                     <span class="group">
-                        <span class="text">Análise Matemática para Engenharia</span>
-                        <span class="text">Elementos de Probabilidades e Teoria de Números</span>
-                        <span class="text">Laboratórios de Informática II</span>
-                        <span class="text">Lógica</span>
-                        <span class="text">Programação Imperativa</span>
-                        <span class="text">Sistemas de Computação</span>
+                        <router-link
+                            v-for="course in courses1"
+                            :key="course.id"
+                            :to="`/ucs/${course.abbreviation}`"
+                            class="text"
+                        >
+                            {{ course.name }}
+                        </router-link>
                     </span>
                     <span class="label">1º Ano</span>
                 </span>
     
                 <span class="card">
                     <span class="group">
-                        <span class="text">Bases de Dados</span>
-                        <span class="text">Investigação Operacional</span>
-                        <span class="text">Métodos Numéricos e Otimização Não Linear</span>
-                        <span class="text">Programação Orientada aos Objetos</span>
-                        <span class="text">Redes de Computadores</span>
-                        <span class="text">Sistemas Operativos</span>
+                        <router-link
+                            v-for="course in courses2"
+                            :key="course.id"
+                            :to="`/ucs/${course.abbreviation}`"
+                            class="text"
+                        >
+                            {{ course.name }}
+                        </router-link>
                     </span>
                     <span class="label">2º Ano</span>
                 </span>
     
                 <span class="card">
                     <span class="group">
-                        <span class="text">Aprendizagem e Decisão Inteligentes</span>
-                        <span class="text">Computação Gráfica</span>
-                        <span class="text">Engenharia Web</span>
-                        <span class="text">Interface Pessoa-Máquina</span>
-                        <span class="text">Processamento de Linguagens</span>
-                        <span class="text">Segurança de Sistemas Informáticos</span>
+                        <router-link
+                            v-for="course in courses3"
+                            :key="course.id"
+                            :to="`/ucs/${course.abbreviation}`"
+                            class="text"
+                        >
+                            {{ course.name }}
+                        </router-link>
                     </span>
                     <span class="label">3º Ano</span>
                 </span>
@@ -49,6 +56,54 @@
                 </span>
 
             </span>
+
+
+            <!-- Student View -->
+            <span :if="session.type == 'student'" class style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 10px;">
+                
+                <span v-if="studentCourses1.length > 0" class="card">
+                    <span class="group">
+                        <router-link
+                            v-for="course in studentCourses1"
+                            :key="course.id"
+                            :to="`/ucs/${course.abbreviation}`"
+                            class="text"
+                        >
+                            {{ course.name }}
+                        </router-link>
+                    </span>
+                    <span class="label">1º Ano</span>
+                </span>
+    
+                <span v-if="studentCourses2.length > 0" class="card">
+                    <span class="group">
+                        <router-link
+                            v-for="course in studentCourses2"
+                            :key="course.id"
+                            :to="`/ucs/${course.abbreviation}`"
+                            class="text"
+                        >
+                            {{ course.name }}
+                        </router-link>
+                    </span>
+                    <span class="label">2º Ano</span>
+                </span>
+    
+                <span v-if="studentCourses3.length > 0" class="card">
+                    <span class="group">
+                        <router-link
+                            v-for="course in studentCourses3"
+                            :key="course.id"
+                            :to="`/ucs/${course.abbreviation}`"
+                            class="text"
+                        >
+                            {{ course.name }}
+                        </router-link>
+                    </span>
+                    <span class="label">3º Ano</span>
+                </span>
+
+            </span>
             
         </div>
 
@@ -56,6 +111,33 @@
 </template>
 
 <script setup lang="ts">
+import { getCoursesByYearAndSemester , getCoursesByStudentId } from '../api';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import type { Course } from '../types';
+import { useSessionStorage } from '@/stores/session';
+
+const route = useRoute()
+const session = useSessionStorage()
+const courses1 = ref<Course[]>([])
+const courses2 = ref<Course[]>([])
+const courses3 = ref<Course[]>([])
+
+const studentId = session.id
+const studentCourses = ref<Course[]>([])
+const studentCourses1 = ref<Course[]>([])
+const studentCourses2 = ref<Course[]>([])
+const studentCourses3 = ref<Course[]>([])
+
+onMounted(async () => {
+    courses1.value = await getCoursesByYearAndSemester(1, 2)
+    courses2.value = await getCoursesByYearAndSemester(2, 2)
+    courses3.value = await getCoursesByYearAndSemester(3, 2)
+    studentCourses.value = await getCoursesByStudentId(Number(studentId))
+    studentCourses1.value = studentCourses.value.filter((course) => Number(course.year) == 1)
+    studentCourses2.value = studentCourses.value.filter((course) => Number(course.year) == 2)
+    studentCourses3.value = studentCourses.value.filter((course) => Number(course.year) == 3)
+})
 </script>
 
 <style scoped>
