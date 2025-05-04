@@ -282,25 +282,21 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { useSessionStorage } from '@/stores/session'
 
 const showPassword = ref(false)
+const session = useSessionStorage()
 
 const user = reactive({
-  name: 'Alice Campos',
-  email: 'a104104@alunos.uminho.pt',
-  password: 'password1234',
+  name: session.name,
+  email: session.email,
+  password: '123',
 })
 
-const originalUser = {
-  name: 'Alice Campos',
-  email: 'a104104@alunos.uminho.pt',
-  password: 'password1234',
-}
-
 const resetForm = () => {
-  user.name = originalUser.name
-  user.email = originalUser.email
-  user.password = originalUser.password
+  user.name = session.name
+  user.email = session.email
+  user.password = '123'
 }
 </script>
 

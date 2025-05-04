@@ -1,12 +1,15 @@
 <script setup lang="ts">
     import './index.css'
     import AppSidebar from './components/AppSidebar.vue';
+    import { useRoute } from 'vue-router'
+
+    const route = useRoute();
 </script>
 
 <template>
     <div class="app">
-        <AppSidebar class="sidebar" />
-        <router-view />
+        <AppSidebar v-if="route.path != '/login'" class="sidebar" />
+        <router-view :key="$route.fullPath" />
     </div>
 </template>
 

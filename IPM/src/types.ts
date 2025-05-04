@@ -51,7 +51,14 @@ export interface Student {
     numMat: number;
     data: string;
 }
-  
+ 
+export interface Director {
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+}
+
 export interface Course {
     id: number;
     name: string;

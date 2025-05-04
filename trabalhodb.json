@@ -3,14 +3,14 @@
     "visibility": false
   },
   "directors": [
-    { "id": 1, "name": "José", "email": "jose@di.uminho.pt", "password": "123" }
+    { "id": "1", "name": "Diana Cunha", "email": "dianacunha@di.uminho.pt", "password": "123" }
   ],
   "teachers": [
-    { "id": 1, "name": "Pedro", "email": "pedro@di.uminho.pt", "password": "123" },
-    { "id": 2, "name": "Ana", "email": "ana@di.uminho.pt", "password": "123" },
-    { "id": 3, "name": "Luís", "email": "luis@di.uminho.pt", "password": "123" },
-    { "id": 4, "name": "Maria", "email": "maria@di.uminho.pt", "password": "123" },
-    { "id": 5, "name": "João", "email": "joao@di.uminho.pt", "password": "123" }
+    { "id": "1", "name": "Pedro", "email": "pedro@di.uminho.pt", "password": "123" },
+    { "id": "2", "name": "Ana", "email": "ana@di.uminho.pt", "password": "123" },
+    { "id": "3", "name": "Luís", "email": "luis@di.uminho.pt", "password": "123" },
+    { "id": "4", "name": "Maria", "email": "maria@di.uminho.pt", "password": "123" },
+    { "id": "5", "name": "João", "email": "joao@di.uminho.pt", "password": "123" }
   ],
   "students": [
     { "id": 104091, "name": "Mafalda", "email": "a32324@alunos.uminho.pt", "password": "123", "specialStatus": true, "enrolled": [1, 2, 3, 4, 5], "horario": "Completo", "ano": 1, "numMat": 1, "data": "2024-07-01" },
@@ -42,7 +42,7 @@
     { "id": 104117, "name": "Pedro", "email": "p32325@alunos.uminho.pt", "password": "123", "enrolled": [11, 12, 13, 14, 15], "horario": "Incompleto", "ano": 1, "numMat": 1, "data": "2024-07-01" },
     { "id": 104118, "name": "Rita", "email": "r32325@alunos.uminho.pt", "password": "123", "enrolled": [16, 17, 18, 19, 20], "horario": "Incompleto", "ano": 5, "numMat": 5, "data": "2024-07-01" },
     { "id": 104119, "name": "Sara", "email": "s32325@alunos.uminho.pt", "password": "123", "enrolled": [21, 22, 23, 24, 25], "horario": "Incompleto", "ano": 4, "numMat": 4, "data": "2024-07-01" },
-    { "id": 104120, "name": "Tiago", "email": "t32325@alunos.uminho.pt", "password": "123", "enrolled": [26, 27, 28, 29, 30], "horario": "Completo", "ano": 1, "numMat": 1, "data": "2024-07-01" }
+    { "id": 104130, "name": "Tiago", "email": "t32325@alunos.uminho.pt", "password": "123", "enrolled": [26, 27, 28, 29, 30], "horario": "Completo", "ano": 3, "numMat": 1, "data": "2024-07-01" }
   ],
   "degrees": [
     { "id": 1, "name": "Licenciatura em Engenharia Informática", "abbreviation": "LEI", "directorId": 1 }

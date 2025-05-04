@@ -2,25 +2,25 @@ import axios from 'axios'
 import * as types from './types'
 
 const API = axios.create({
-    baseURL: 'http://localhost:3000',
-    responseType: 'json',
-    headers: {
-        'Content-Type': 'application/json'
-    }
+  baseURL: 'http://localhost:3000',
+  responseType: 'json',
+  headers: {
+    'Content-Type': 'application/json',
+  },
 })
 
 const API_BASE = 'http://localhost:3000';
 
 /** Get the schedules' visibility */
 export async function getSchedulesVisibility(): Promise<boolean> {
-    const response = await API.get('/schedule-visibility');
-    return response.data.visibility;
+  const response = await API.get('/schedule-visibility')
+  return response.data.visibility
 }
-  
+
 /** Update the schedules' visibility */
 export async function updateSchedulesVisibility(visibility: boolean): Promise<void> {
-    console.log("Updating schedules visibility to:", visibility);
-    await API.put('/schedule-visibility', { "visibility": visibility });
+  console.log('Updating schedules visibility to:', visibility)
+  await API.put('/schedule-visibility', { visibility: visibility })
 }
 
 /**
@@ -30,7 +30,7 @@ export async function list_ShiftRequests(): Promise<types.ShiftRequestDataDict> 
   const response = await API.get<types.ShiftRequestData[]>('/shiftRequests')
   const data = response.data
   const dict: types.ShiftRequestDataDict = {}
-  data.forEach(item => {
+  data.forEach((item) => {
     dict[item.id] = item
   })
   return dict
@@ -43,7 +43,7 @@ export async function list_ClassroomRequests(): Promise<types.ClassroomRequestDa
   const response = await API.get<types.ClassroomRequestData[]>('/classroomRequests')
   const data = response.data
   const dict: types.ClassroomRequestDataDict = {}
-  data.forEach(item => {
+  data.forEach((item) => {
     dict[item.id] = item
   })
   return dict
@@ -110,30 +110,30 @@ export const getClassrooms = async (): Promise<types.Classroom[]> => {
  */
 export async function listRequestStatusStatistics(): Promise<any> {
   const response = await API.get<types.ShiftRequestData[]>('/shiftRequests')
-  const data = response.data;
+  const data = response.data
 
-  let pending = 0;
-  let approved = 0;
-  let denied = 0;
+  let pending = 0
+  let approved = 0
+  let denied = 0
 
-  for(const item of data) {
-    if(item.response === 'Pendente') {
-      pending++;
-    } else if(item.response === 'Aprovado') {
-      approved++;
-    } else if(item.response === 'Recusado') {
-      denied++;
+  for (const item of data) {
+    if (item.response === 'Pendente') {
+      pending++
+    } else if (item.response === 'Aprovado') {
+      approved++
+    } else if (item.response === 'Recusado') {
+      denied++
     }
   }
 
-  const total = pending + approved + denied;
-  if(total > 0) {
-    pending = Math.round((pending / total) * 100);
-    approved = Math.round((approved / total) * 100);
-    denied = Math.round((denied / total) * 100);
+  const total = pending + approved + denied
+  if (total > 0) {
+    pending = Math.round((pending / total) * 100)
+    approved = Math.round((approved / total) * 100)
+    denied = Math.round((denied / total) * 100)
   }
 
-  return { "pending": pending, "approved": approved, "denied": denied };
+  return { pending: pending, approved: approved, denied: denied }
 }
 
 /**
@@ -141,26 +141,29 @@ export async function listRequestStatusStatistics(): Promise<any> {
  */
 export async function listUsersWithConflictsByYearStatistics(): Promise<any> {
   const response = await API.get<any>('/conflicts')
-  const data = response.data;
+  const data = response.data
+  let firstYearConflicts = 0
+  let secondYearConflicts = 0
+  let thirdYearConflicts = 0
 
-  let firstYearConflicts = 0;
-  let secondYearConflicts = 0;
-  let thirdYearConflicts = 0;
-
-  for(const item of data){
-    const studentId = item.studentId;
-    const student = await API.get<[types.Student]>(`/students?id=${studentId}`);
-    const studentData = student.data[0];
+  for (const item of data) {
+    const studentId = item.studentId
+    const student = await API.get<[types.Student]>(`/students?id=${studentId}`)
+    const studentData = student.data[0]
     if (studentData.ano === 1) {
-      firstYearConflicts++;
+      firstYearConflicts++
     } else if (studentData.ano === 2) {
-      secondYearConflicts++;
+      secondYearConflicts++
     } else if (studentData.ano === 3) {
-      thirdYearConflicts++;
+      thirdYearConflicts++
     }
   }
 
-  return {"firstYear": firstYearConflicts, "secondYear": secondYearConflicts, "thirdYear": thirdYearConflicts};
+  return {
+    firstYear: firstYearConflicts,
+    secondYear: secondYearConflicts,
+    thirdYear: thirdYearConflicts,
+  }
 }
 
 /**
@@ -168,26 +171,30 @@ export async function listUsersWithConflictsByYearStatistics(): Promise<any> {
  */
 export async function listRequestsByYearStatistics(): Promise<any> {
   const response = await API.get<types.ShiftRequestData[]>('/shiftRequests')
-  const data = response.data;
+  const data = response.data
 
-  let firstYearRequests = 0;
-  let secondYearRequests = 0;
-  let thirdYearRequests = 0;
+  let firstYearRequests = 0
+  let secondYearRequests = 0
+  let thirdYearRequests = 0
 
-  for(const item of data){
-    const studentId = item.studentId;
-    const student = await API.get<[types.Student]>(`/students?id=${studentId}`);
-    const studentData = student.data[0];
+  for (const item of data) {
+    const studentId = item.studentId
+    const student = await API.get<[types.Student]>(`/students?id=${studentId}`)
+    const studentData = student.data[0]
     if (studentData.ano === 1) {
-      firstYearRequests++;
+      firstYearRequests++
     } else if (studentData.ano === 2) {
-      secondYearRequests++;
+      secondYearRequests++
     } else if (studentData.ano === 3) {
-      thirdYearRequests++;
+      thirdYearRequests++
     }
   }
 
-  return {"firstYear": firstYearRequests, "secondYear": secondYearRequests, "thirdYear": thirdYearRequests};
+  return {
+    firstYear: firstYearRequests,
+    secondYear: secondYearRequests,
+    thirdYear: thirdYearRequests,
+  }
 }
 
 /**
@@ -195,25 +202,29 @@ export async function listRequestsByYearStatistics(): Promise<any> {
  */
 export async function listStudentsWithIncompleteSchedulesByYearStatistics(): Promise<any> {
   const response = await API.get<types.Student[]>('/students')
-  const data = response.data;
+  const data = response.data
 
-  let firstYearStudents = 0;
-  let secondYearStudents = 0;
-  let thirdYearStudents = 0;
+  let firstYearStudents = 0
+  let secondYearStudents = 0
+  let thirdYearStudents = 0
 
-  for(const student of data){
-    if(student.horario == "Incompleto"){
+  for (const student of data) {
+    if (student.horario == 'Incompleto') {
       if (student.ano === 1) {
-        firstYearStudents++;
+        firstYearStudents++
       } else if (student.ano === 2) {
-        secondYearStudents++;
+        secondYearStudents++
       } else if (student.ano === 3) {
-        thirdYearStudents++;
+        thirdYearStudents++
       }
     }
   }
 
-  return {"firstYear": firstYearStudents, "secondYear": secondYearStudents, "thirdYear": thirdYearStudents};
+  return {
+    firstYear: firstYearStudents,
+    secondYear: secondYearStudents,
+    thirdYear: thirdYearStudents,
+  }
 }
 
 /**
@@ -221,15 +232,43 @@ export async function listStudentsWithIncompleteSchedulesByYearStatistics(): Pro
  */
 export async function getPercentageOfStudentsWithConflicts(): Promise<number> {
   const response = await API.get<any>('/conflicts')
-  const data = response.data;
+  const data = response.data
 
   const totalStudentsResponse = await API.get<types.Student[]>('/students')
-  const totalStudentsData = totalStudentsResponse.data;
+  const totalStudentsData = totalStudentsResponse.data
 
-  let totalStudents = totalStudentsData.length;
-  let studentsWithConflicts = data.length / 2;
+  let totalStudents = totalStudentsData.length
+  let studentsWithConflicts = data.length / 2
 
-  return Math.round((studentsWithConflicts / totalStudents) * 100);
+  return Math.round((studentsWithConflicts / totalStudents) * 100)
+}
+
+export async function login(email: string, password: string) {
+  try {
+    const studentRes = (await API.get<types.Student[]>(`/students?email=${email}`)).data[0]
+    if (studentRes?.password == password) {
+      return {
+        id: studentRes.id,
+        name: studentRes.name,
+        type: 'student',
+        email: email,
+      }
+    }
+
+    const directorRes = (await API.get<types.Director[]>(`/directors?email=${email}`)).data[0]
+    if (directorRes?.password == password) {
+      return {
+        id: directorRes.id,
+        name: directorRes.name,
+        type: 'director',
+        email: email,
+      }
+    }
+
+    return false
+  } catch (error) {
+    return false
+  }
 }
 
 // Atualizar resposta de pedido de troca (PUT)
