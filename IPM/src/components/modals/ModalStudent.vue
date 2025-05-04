@@ -236,7 +236,6 @@
     const enrolledCourses = ref<Course[]>([])
     const availableShiftTypes = ref<string[]>([])
     const student = ref<Student | null>(null)
-    const course = ref<Course | null>(null)
     const selectedShift = ref('')
     const shifts = ref<Shift[]>([])
     const shifts_calendar = ref<CalendarShift[]>([])

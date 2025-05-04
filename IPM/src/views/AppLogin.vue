@@ -81,7 +81,7 @@ const password = ref('')
 async function login() {
   const token = await api.login(email.value, password.value)
   if (token) {
-    session.login(token.id, token.name, token.type, token.email)
+    session.login(String(token.id), token.name, token.type, token.email)
     router.push('/')
   } else {
     alert('Invalid email or password!')
