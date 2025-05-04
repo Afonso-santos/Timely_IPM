@@ -48,7 +48,7 @@
         </div>
 
         <!-- Student view -->
-        <div :if="session.type == 'student'" class="!pt-[130px] !px-[85px]">
+        <div v-if="session.type == 'student'" class="!pt-[130px] !px-[85px]">
             <div class="flex flex-row justify-between">
                 <h1 class="text-primary font-semibold text-3xl">O Meu Horário</h1>
                 <button class="!bg-primary text-white !px-3 !text-base rounded-xl">
