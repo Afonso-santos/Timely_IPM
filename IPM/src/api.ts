@@ -299,20 +299,25 @@ export const getCoursesByYearAndSemester = async (year: number, semester: number
 
 // Fetch a single course by its abbreviation
 export const getCourseByAbbreviation = async (abbreviation: string): Promise<types.Course> => {
-  const response = await API.get<types.Course>(`/courses/?abbreviation=${abbreviation}`)
-  return response.data
+  const response = await API.get<types.Course[]>(`/courses?abbreviation=${abbreviation}`);
+  return response.data[0];
 }
 
 // Fetch all courses by student ID
 export const getCoursesByStudentId = async (studentId: number): Promise<types.Course[]> => {
-  const studentResponse = await API.get<types.Student>(`/students/${studentId}`);
-  const enrolledCourseIds = studentResponse.data.enrolled;
+  const studentResponse = (await API.get<types.Student[]>(`/students?id=${studentId}`));
+  const enrolledCourseIds = studentResponse.data[0].enrolled;
 
   const courseResponses = await Promise.all(
-    enrolledCourseIds.map((courseId) => API.get<types.Course>(`/courses/${courseId}`))
+    enrolledCourseIds.map(async (courseId) => {
+      const response = await API.get<types.Course[]>(`/courses?id=${courseId}`);
+      return response.data[0];
+    })
   );
 
-  return courseResponses.map(res => res.data);
+  console.log('Enrolled courses:', courseResponses);
+
+  return courseResponses.map(res => res);
 };
 
 /**
@@ -351,7 +356,7 @@ export async function getStudentShiftsCalendarFormatted(studentId: number): Prom
       name: `${course?.abbreviation ?? 'Unknown'} - ${shift.name}`,
       type: shift.type,
       classroomId: shift.classroomId,
-      classroomName: "CP" + classroom?.buildingId + " - " + classroom?.name ?? 'Unknown',
+      classroomName: "CP" + classroom?.buildingId + " - " + classroom?.name,
       courseId: shift.courseId,
       shiftName: shift.name,
       teacher: teacher?.name ?? 'Unknown',
@@ -360,4 +365,59 @@ export async function getStudentShiftsCalendarFormatted(studentId: number): Prom
   });
 
   return calendarShifts;
+}
+
+
+export async function getCourseShiftsCalendarFormatted(courseId: string): Promise<types.CalendarShift[]> {
+  // Fetch all shifts, classrooms, courses, and teachers in parallel
+  const [shifts, classrooms, courses, teachers] = await Promise.all([
+    API.get<types.Shift[]>('/shifts'),
+    API.get<types.Classroom[]>('/classrooms'),
+    API.get<types.Course[]>('/courses'),
+    API.get<types.Teacher[]>('/teachers'),
+  ]);
+
+  // Filter shifts for the given course
+  const courseShifts = shifts.data.filter(s => String(s.courseId) == courseId);
+  console.log('Course shifts:', courseShifts);
+
+  // Convert to calendar format
+  const calendarShifts: types.CalendarShift[] = courseShifts.map(shift => {
+    const classroom = classrooms.data.find(c => c.id === shift.classroomId);
+    const course = courses.data.find(c => c.id === shift.courseId);
+    const teacher = teachers.data.find(t => t.id == shift.teacherId);
+
+
+    return {
+      day: shift.day,
+      from: shift.from,
+      to: shift.to,
+      name: `${course?.abbreviation ?? 'Unknown'} - ${shift.name}`,
+      type: shift.type,
+      classroomId: shift.classroomId,
+      classroomName: "CP" + classroom?.buildingId + " - " + classroom?.name,
+      courseId: shift.courseId,
+      shiftName: shift.name,
+      teacher: teacher?.name ?? 'Unknown',
+      fullName: `${course?.name ?? 'Unknown'}`,
+    };
+  });
+
+  return calendarShifts;
+}
+
+export async function listCourseTeachers(courseId: string): Promise<types.Teacher[]> {
+  const response = await API.get<types.Shift[]>(`/shifts?courseId=${courseId}`)
+
+  const shiftData = response.data
+  let teachers: types.Teacher[] = []
+
+  for (const shift of shiftData) {
+    const teacherResponse = await API.get<types.Teacher[]>(`/teachers?id=${shift.teacherId}`)
+    const teacherData = teacherResponse.data[0]
+    if (!teachers.some(t => t.id === teacherData.id)) {
+      teachers.push(teacherData)
+    }
+  }
+  return teachers;
 }
