@@ -75,16 +75,21 @@ const links = computed(() => {
   const common = [
     { to: '/', icon: 'schedule', text: 'Horários' },
     { to: '/ucs', icon: 'school', text: 'UCs' },
-    { to: '/requests', icon: 'chat', text: 'Pedidos' },
+
+  ]
+
+  const onlyForStudents = [
+    { to: '/requests-students', icon: 'chat', text: 'Pedidos' }
   ]
 
   const directorOnly = [
     { to: '/tasks', icon: 'pending_actions', text: 'Tarefas' },
     { to: '/students', icon: 'groups', text: 'Alunos' },
     { to: '/statistics', icon: 'equalizer', text: 'Estatísticas' },
+    { to: '/requests', icon: 'chat', text: 'Pedidos' },
   ]
 
-  return session.type === 'director' ? [...common, ...directorOnly] : common
+  return session.type === 'director' ? [...common, ...directorOnly] : [...common, ...onlyForStudents]
 })
 
 const logout = () => {

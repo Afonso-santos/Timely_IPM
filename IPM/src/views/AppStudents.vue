@@ -180,7 +180,7 @@
         </div>
 
         <ModalStudent v-model="isModalOpen" :request="selectedStudent">
-            <template #title>Pedido de Troca de Horário</template>
+            <template #title>Editar Aluno</template>
         </ModalStudent>
     </main>
 </template>

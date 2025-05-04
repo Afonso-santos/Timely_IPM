@@ -1,33 +1,158 @@
 <template>
     <main class="flex flex-col justify-start items-center main">
         <div class="w-[1000px]">
-            <div class="text-sky-900 text-[28px] font-bold flex justify-start">
-                As Minhas Tarefas
+            <div class= "flex flex-row justify-between">
+                <div class="text-sky-900 text-2xl font-semibold">
+                    Pedidos
+                </div>
+                <div 
+                    class="!px-2.5 cursor-pointer py-2.5 bg-sky-900/90 rounded-[10px] shadow-[0px_4px_5px_0px_rgba(0,0,0,0.10)] inline-flex justify-center items-center"
+                    @click="isModalOpen = true"
+                >
+                    <div class="text-center justify-center text-white text-sm font-medium">Novo Pedido</div>
+                </div>
             </div>
 
-            <div class="new-task-table">
-                <!-- Tabs -->
-                <div class="tabs border-b-1 border-[#666666]/20 mb-4">
+            <div class="student-table">
+                <!-- Table -->
+                <table class="table-auto w-full">
+                    <thead>
+                        <tr>
+                            <th @click="onSort('pedido')" class="cursor-pointer select-none">
+                                Pedido
+                                <span class="sort-indicator inline-block ml-1">
+                                    <component
+                                        :is="sortIcon('pedido')"
+                                        :size="14"
+                                    />
+                                </span>
+                            </th>
+                            <th @click="onSort('uc')" class="cursor-pointer select-none">
+                                UC
+                                <span class="sort-indicator inline-block ml-1">
+                                    <component
+                                        :is="sortIcon('uc')"
+                                        :size="14"
+                                    />
+                                </span>
+                            </th>
+                            <th @click="onSort('turno')" class="cursor-pointer select-none">
+                                Turno
+                                <span class="sort-indicator inline-block ml-1">
+                                    <component
+                                        :is="sortIcon('turno')"
+                                        :size="14"
+                                    />
+                                </span>
+                            </th>
+                            <th @click="onSort('mudanca')" class="cursor-pointer select-none">
+                                Mudança
+                                <span class="sort-indicator inline-block ml-1">
+                                    <component
+                                        :is="sortIcon('mudanca')"
+                                        :size="14"
+                                    />
+                                </span>
+                            </th>
+                            <th @click="onSort('estado')" class="cursor-pointer select-none">
+                                Estado
+                                <span class="sort-indicator inline-block ml-1">
+                                    <component
+                                        :is="sortIcon('estado')"
+                                        :size="14"
+                                    />
+                                </span>
+                            </th>
+                            <th @click="onSort('data')" class="cursor-pointer select-none">
+                                Data
+                                <span class="sort-indicator inline-block ml-1">
+                                    <component
+                                        :is="sortIcon('data')"
+                                        :size="14"
+                                    />
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr v-for="item in paginatedData" :key="item.pedido">
+                            <td>{{ item.pedido }}</td>
+                            <td>{{ item.uc }}</td>
+                            <td>{{ item.turno }}</td>
+                            <td>{{ item.mudanca }}</td>
+                            <td>
+                                <span
+                                    :class="[
+                                        'w-22 h-[22px] rounded-[10px] inline-flex justify-center items-center gap-2.5 text-sm status',
+                                        item.estado.toLowerCase()
+                                    ]"
+                                >
+                                    {{ item.estado }}
+                                </span>
+                            </td>
+                            <td>{{ formatDate(item.data) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="w-full flex justify-end mt-4">
+                <div class="pagination flex items-center space-x-1">
                     <button
-                        v-for="tab in tabs"
-                        :key="tab.name"
-                        @click="activeTab = tab.name"
-                        :class="['tab', { active: activeTab === tab.name }]"
+                        class="page"
+                        @click="goToPage(1)"
+                        :disabled="currentPage === 1"
                     >
-                        {{ tab.label }}
-                        <span class="count" v-if="tab.name != 'nova-tarefa'">{{ filteredData(tab.name).length }}</span>
+                        <ChevronsLeft :size="20" />
                     </button>
-                </div>
-                <div class="padding-[20px]">
+                    <button
+                        class="page"
+                        @click="goToPage(currentPage - 1)"
+                        :disabled="currentPage === 1"
+                    >
+                        <ChevronLeft :size="18" />
+                    </button>
+                    <button
+                        v-for="page in pageNumbers"
+                        :key="page"
+                        @click="goToPage(page)"
+                        :class="['page', { active: currentPage === page }]"
+                    >
+                        {{ page }}
+                    </button>
+                    <button
+                        class="page"
+                        @click="goToPage(currentPage + 1)"
+                        :disabled="currentPage === totalPages"
+                    >
+                        <ChevronRight :size="18" />
+                    </button>
+                    <button
+                        class="page-alt"
+                        @click="goToPage(totalPages)"
+                        :disabled="currentPage === totalPages"
+                    >
+                        <ChevronsRight :size="20" />
+                    </button>
                 </div>
             </div>
         </div>
+        <ModalRequest v-model="isModalOpen" :request="userId">
+            <template #title>Novo Pedido</template>
+        </ModalRequest>
     </main>
 </template>
   
-<script lang="ts">
+<script lang="ts"> 
+    import { useSessionStorage } from '@/stores/session.ts';
     import { defineComponent, computed, ref, watch, onMounted } from 'vue';
+    import { list_ShiftRequests, list_ClassroomRequests } from '../api';
+    import type { ShiftRequestData, ClassroomRequestData } from '../types';
+    import ModalRequest from '@/components/modals/ModalRequest.vue';
     import { parseISO } from 'date-fns';
+    import { toast } from 'vue-sonner';
     import {
         CircleCheckBig,
         CircleX,
@@ -45,11 +170,24 @@
         ChevronDown
     } from 'lucide-vue-next';
 
-    type TabName = 'nova-tarefa' | 'adicionado';
+    interface BaseRecord {
+        pedido: number;
+        nome: string;
+        uc: string;
+        data: Date;
+        estado: 'Pendente' | 'Recusado' | 'Aprovado';
+        mudanca: string;
+        arquivado: boolean;
+        tipo: 'Estudante';
+        turno: string;
+    }
+
+    type SortKey = keyof BaseRecord | 'turno' | 'sala' | 'tipo';
 
     export default defineComponent({
         name: 'RequestTable',
         components: {
+            ModalRequest,
             CircleCheckBig,
             CircleX,
             Archive,
@@ -66,11 +204,16 @@
             ChevronDown
         },
         setup() {
-            const studentRecords = ref<StudentRecord[]>([]);
-            const teacherRecords = ref<TeacherRecord[]>([]);
+            const studentRecords = ref<BaseRecord[]>([]);
+
+            const isModalOpen = ref(false);
+
+            const session = useSessionStorage();
+            const user = session.name;
+            const userId = session.id;
 
             onMounted(async () => {
-                const [shiftDict, classroomDict] = await Promise.all([
+                const [shiftDict] = await Promise.all([
                     list_ShiftRequests(),
                     list_ClassroomRequests()
                 ])
@@ -87,25 +230,8 @@
                     arquivado: s.archive
                 }))
 
-                teacherRecords.value = Object.values(classroomDict).map((c: ClassroomRequestData) => ({
-                    tipo: 'Docente',
-                    pedido: c.id,
-                    nome: c.nome,
-                    sala: c.classroom,
-                    uc: c.uc,
-                    data: parseISO(c.date),
-                    estado: c.response,
-                    mudanca: c.alternativeclassroom,
-                    arquivado: c.archive
-                }))
+                studentRecords.value = studentRecords.value.filter((s) => s.nome == user);
             })
-
-            // Active tab
-            const tabs = [
-                { name: 'nova-tarefa' as TabName, label: 'Nova Tarefa' },
-                { name: 'adicionado' as TabName, label: 'Adicionado Anteriormente a TickTick' }
-            ];
-            const activeTab = ref<TabName>('nova-tarefa');
 
             // Seach + Sort
             const searchQuery = ref('');
@@ -130,33 +256,10 @@
                 return ChevronsUpDown;
             }
 
-            // 2) Builds the filtered data and returns it
-            function filteredData(tab: TabName): AnyRecord[] {
-                let list: AnyRecord[] = [];
-                if (tab === 'alunos') {
-                    list = studentRecords.value.filter(r => !r.arquivado);
-                } else if (tab === 'docentes') {
-                    list = teacherRecords.value.filter(r => !r.arquivado);
-                } else {
-                    list = [
-                        ...studentRecords.value.filter(r => r.arquivado),
-                        ...teacherRecords.value.filter(r => r.arquivado)
-                    ];
-                }
-
-                // general search
-                if (searchQuery.value) {
-                    const q = searchQuery.value.toLowerCase();
-                    list = list.filter(item =>
-                        Object.entries(item).some(([k, v]) => {
-                            if (v == null) return false;
-                            const s = v instanceof Date ? v.toLocaleDateString() : String(v);
-                            return s.toLowerCase().includes(q);
-                        })
-                    );
-                }
-
-                // sorting
+            // 2) Builds the sorted data
+            function sortedData(): BaseRecord[] {
+                let list: BaseRecord[] = [];
+                list = studentRecords.value;
                 if (sortKey.value) {
                     const key = sortKey.value;
                     list.sort((a, b) => {
@@ -171,84 +274,11 @@
                 return list;
             }
 
-            // 3) Selection
-            const selectedIds = ref(new Set<number>());
-            const selectedArray = computed<number[]>({
-                get: () => Array.from(selectedIds.value),
-                set(arr) { selectedIds.value = new Set(arr); }
-            });
-            const allSelected = computed(() => {
-                const list = filteredData(activeTab.value);
-                return list.length > 0 && list.every(i => selectedIds.value.has(i.pedido));
-            });
-            function toggleSelectAll(e: Event) {
-                const checked = (e.target as HTMLInputElement).checked;
-                filteredData(activeTab.value).forEach(i =>
-                    checked ? selectedIds.value.add(i.pedido) : selectedIds.value.delete(i.pedido)
-                );
-            }
-
-            // 4) Actions
-            function approveSelected() {
-                studentRecords.value.forEach(r => selectedIds.value.has(r.pedido) && (r.estado = 'Aprovado'));
-                teacherRecords.value.forEach(r => selectedIds.value.has(r.pedido) && (r.estado = 'Aprovado'));
-                selectedIds.value.clear();
-            }
-            function rejectSelected() {
-                studentRecords.value.forEach(r => selectedIds.value.has(r.pedido) && (r.estado = 'Recusado'));
-                teacherRecords.value.forEach(r => selectedIds.value.has(r.pedido) && (r.estado = 'Recusado'));
-                selectedIds.value.clear();
-            }
-            function archiveSelected() {
-                studentRecords.value.forEach(r => selectedIds.value.has(r.pedido) && (r.arquivado = true));
-                teacherRecords.value.forEach(r => selectedIds.value.has(r.pedido) && (r.arquivado = true));
-                selectedIds.value.clear();
-            }
-            function deleteArchivedSelected() {
-                const toDel = Array.from(selectedIds.value);
-                toDel.forEach(id => {
-                    const i1 = studentRecords.value.findIndex(r => r.pedido === id && r.arquivado);
-                    if (i1 >= 0) studentRecords.value.splice(i1, 1);
-                    const i2 = teacherRecords.value.findIndex(r => r.pedido === id && r.arquivado);
-                    if (i2 >= 0) teacherRecords.value.splice(i2, 1);
-                });
-                selectedIds.value.clear();
-            }
-
-            function editItem(item: AnyRecord) {
-                // Logica para editar o item (abrir modal)
-                console.log('Editar:', item);
-            }
-
-            function archiveItem(item: AnyRecord) {
-                if ('turno' in item) {
-                    // StudentRecord
-                    const rec = studentRecords.value.find(r => r.pedido === item.pedido);
-                    if (rec) rec.arquivado = true;
-                } else {
-                    // TeacherRecord
-                    const rec = teacherRecords.value.find(r => r.pedido === item.pedido);
-                    if (rec) rec.arquivado = true;
-                }
-            }
-
-            function deleteItem(item: AnyRecord) {
-                if (item.arquivado) {
-                    if ('turno' in item) {
-                        const idx = studentRecords.value.findIndex(r => r.pedido === item.pedido);
-                        if (idx >= 0) studentRecords.value.splice(idx, 1);
-                    } else {
-                        const idx = teacherRecords.value.findIndex(r => r.pedido === item.pedido);
-                        if (idx >= 0) teacherRecords.value.splice(idx, 1);
-                    }
-                }
-            }
-
             // 5) Pagination
             const currentPage = ref(1);
             const pageSize = 9;
             const totalPages = computed(() =>
-                Math.ceil(filteredData(activeTab.value).length / pageSize)
+                Math.ceil(sortedData().length / pageSize)
             );
             const pageNumbers = computed(() =>
                 Array.from({ length: totalPages.value }, (_, i) => i + 1)
@@ -257,17 +287,9 @@
                 currentPage.value = Math.min(Math.max(p, 1), totalPages.value);
             }
             const paginatedData = computed(() => {
-                const all = filteredData(activeTab.value);
+                const all = sortedData();
                 const start = (currentPage.value - 1) * pageSize;
                 return all.slice(start, start + pageSize);
-            });
-
-            watch(activeTab, () => {
-                currentPage.value = 1;
-                selectedIds.value.clear();
-                sortKey.value = null;
-                sortOrder.value = 'asc';
-                searchQuery.value = '';
             });
 
             function formatDate(d: Date) {
@@ -279,34 +301,24 @@
             }
 
             return {
-                tabs,
-                activeTab,
+                ModalRequest,
+                isModalOpen,
                 searchQuery,
                 sortKey,
                 sortOrder,
                 onSort,
                 sortIcon,
-                selectedIds,
-                selectedArray,
-                allSelected,
-                toggleSelectAll,
-                approveSelected,
-                rejectSelected,
-                archiveSelected,
-                deleteArchivedSelected,
-                editItem,
-                archiveItem,
-                deleteItem,
                 currentPage,
                 pageNumbers,
                 totalPages,
                 goToPage,
                 paginatedData,
-                filteredData,
+                sortedData,
                 formatDate,
                 ChevronsUpDown,
                 ChevronUp,
-                ChevronDown
+                ChevronDown,
+                userId
             };
         }
     });
@@ -314,19 +326,18 @@
 
 <style scoped lang="css">
 .main {
-    padding-top: 156px;
+    padding-top: 98px;
 }
-.new-task-table {
+.student-table {
     background: #fff;
-    border-radius: 20px;
+    border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin-top: 27px;
     display: flex;
     width: 1000px;
-    height: 400px;
+    height: 700px;
     flex-direction: column;
     flex-shrink: 0;
-    gap: 38px;
 }
 .search {
     padding: 0px 8px;
