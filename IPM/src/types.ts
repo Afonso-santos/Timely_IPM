@@ -103,4 +103,23 @@ export interface Classroom {
     buildingId: number;
     abbreviation: string;
 }
-  
+export interface CalendarShift {
+    day: string;
+    from: string;
+    to: string;
+    name: string;
+    type: string;
+    classroomId: number;
+    classroomName: string;
+    courseId: number;
+    shiftName: string;
+    teacher: string;
+    fullName: string;
+}
+
+export interface Teacher {
+    id: number;
+    name: string;
+    email: string;
+    password: string;
+}

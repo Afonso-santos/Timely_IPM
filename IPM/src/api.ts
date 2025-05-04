@@ -290,3 +290,50 @@ export const createAllocation = async (allocation: types.Allocation) => {
 export const deleteAllocation = async (id: number) => {
   await axios.delete(`${API_BASE}/allocations/${id}`);
 };
+
+/**
+ * Fetch all shifts for a specific student and return them in calendar format
+ */
+export async function getStudentShiftsCalendarFormatted(studentId: number): Promise<types.CalendarShift[]> {
+  // Fetch all allocations, shifts, classrooms, and courses in parallel
+  const [allocations, shifts, classrooms, courses, teachers] = await Promise.all([
+    API.get<types.Allocation[]>('/allocations'),
+    API.get<types.Shift[]>('/shifts'),
+    API.get<types.Classroom[]>('/classrooms'),
+    API.get<types.Course[]>('/courses'),
+    API.get<types.Teacher[]>('/teachers'),
+  ]);
+
+  // Filter allocations for the given student
+  const studentAllocations = allocations.data.filter(a => a.studentId === studentId);
+
+  // Map allocation shiftIds to actual shift data
+  const studentShifts = studentAllocations
+    .map(a => shifts.data.find(s => s.id === a.shiftId))
+    .filter((s): s is types.Shift => s !== undefined); // type narrowing
+
+    // Convert to calendar format
+    const calendarShifts: types.CalendarShift[] = studentShifts.map(shift => {
+    const classroom = classrooms.data.find(c => c.id === shift.classroomId);
+    const course = courses.data.find(c => c.id === shift.courseId);
+
+    // Fetch teacher name
+    const teacher = teachers.data.find(t => t.id == shift.teacherId);
+
+    return {
+      day: shift.day,
+      from: shift.from,
+      to: shift.to,
+      name: `${course?.abbreviation ?? 'Unknown'} - ${shift.name}`,
+      type: shift.type,
+      classroomId: shift.classroomId,
+      classroomName: "CP" + classroom?.buildingId + " - " + classroom?.name ?? 'Unknown',
+      courseId: shift.courseId,
+      shiftName: shift.name,
+      teacher: teacher?.name ?? 'Unknown',
+      fullName: `${course?.name ?? 'Unknown'}`,
+    };
+  });
+
+  return calendarShifts;
+}

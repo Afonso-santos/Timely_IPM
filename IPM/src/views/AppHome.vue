@@ -1,8 +1,8 @@
 <template>
-    <main class="home-page" style="display: flex; align-items: center; justify-content: center; padding: 85px 150px;"> 
-        
-        <div class style="display: flex; width: 920px; flex-wrap: wrap; align-items: center; justify-content: center; gap: 90px;">
-        
+    <main class="home-page"> 
+        <!-- Director view -->
+        <div v-if="session.type == 'director'" style="display: flex; align-items: center; justify-content: center; padding: 85px 150px;">
+        <div style="display: flex; width: 920px; flex-wrap: wrap; align-items: center; justify-content: center; gap: 90px;">
             <button class="button">
                 <span class="group">
                     <span class="material-symbols-outlined">bolt</span>
@@ -34,7 +34,6 @@
                 </span>
                 <span class="text" style="width: 239px;">Visualização e resolução de conflitos em horários</span>
             </button>
-        
         </div>
         
         <div class="h-screen w-screen bg-black/20 duration-200 flex flex-col transition-all fixed" v-if="isOpen" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; " @click="isOpen = false">
@@ -46,6 +45,21 @@
                 </div>
             </div>
         </div>
+        </div>
+
+        <!-- Student view -->
+        <div :if="session.type == 'student'" class="!pt-[130px] !px-[85px]">
+            <div class="flex flex-row justify-between">
+                <h1 class="text-primary font-semibold text-3xl">O Meu Horário</h1>
+                <button class="!bg-primary text-white !px-3 !text-base rounded-xl">
+                    Exportar
+                </button>
+            </div>
+            <div class="!pt-8">
+                <WeeklySchedule :studentId="session.id"/>
+            </div>
+        </div>
+        
 
     </main>
 </template>
@@ -54,9 +68,12 @@
 
 import { ref, onMounted } from 'vue';
 import { getSchedulesVisibility, updateSchedulesVisibility } from '../api';
+import { useSessionStorage } from '@/stores/session';
+import WeeklySchedule from '@/components/schedules/WeeklySchedule.vue';
 
 const isOpen = ref(false);
 const isVisible = ref(false);
+const session = useSessionStorage();
 
 onMounted(async () => {
     isVisible.value = await getSchedulesVisibility();
