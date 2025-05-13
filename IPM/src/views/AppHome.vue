@@ -56,7 +56,7 @@
                 </button>
             </div>
             <div class="!pt-8">
-                <WeeklySchedule :studentId="session.id"/>
+                <WeeklySchedule :studentId="Number(session.id)"/>
             </div>
         </div>
         

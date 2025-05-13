@@ -182,7 +182,7 @@
         const classroom = classrooms.value.find(c => c.id == Number(id))
         if (classroom) {
             newClassroom.value = classroom
-            canSubmit.value = currentShiftSize.value <= classroom.capacity
+            canSubmit.value = (props.request!.shiftSize ?? 0) <= classroom.capacity
         } else {
             canSubmit.value = false
         }

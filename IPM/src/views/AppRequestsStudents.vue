@@ -139,7 +139,7 @@
                 </div>
             </div>
         </div>
-        <ModalRequest v-model="isModalOpen" :request="userId">
+        <ModalRequest v-model="isModalOpen" :request="Number(userId)">
             <template #title>Novo Pedido</template>
         </ModalRequest>
     </main>
