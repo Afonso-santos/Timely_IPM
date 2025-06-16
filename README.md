@@ -1,5 +1,7 @@
 # Timely: University Students' Schedule Manager ⏰
 
+## Grade: 18/20 ⭐️
+
 This project is being developed for the **Human-Computer Interaction** course, part of the third-year curriculum in the Software Engineering bachelor's program at the University of Minho. It focuses on implementing a schedules' management platform, while creating a user-friendly interface that strictly follows good practices like "Nielsen Heuristics" and other common guidelines.
 
 ## 🛠️ Project Setup
